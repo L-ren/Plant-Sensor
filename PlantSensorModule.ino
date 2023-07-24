@@ -58,6 +58,18 @@ void setup() {
 
 void loop() {
   delay(1000);
-  Serial.println(dht.readHumidity());
+  Serial.print("Humidity: "); Serial.println(dht.readHumidity());
+
+  // Serial.print("raw ALS: "); Serial.println(veml.readALS());
+  // Serial.print("raw white: "); Serial.println(veml.readWhite());
+  Serial.print("lux: "); Serial.println(veml.readLux());
+
+  uint16_t irq = veml.interruptStatus();
+  if (irq & VEML7700_INTERRUPT_LOW) {
+    Serial.println("** Low threshold");
+  }
+  if (irq & VEML7700_INTERRUPT_HIGH) {
+    Serial.println("** High threshold");
+  }
 
 }
