@@ -4,21 +4,23 @@
 
 Adafruit_VEML7700 veml = Adafruit_VEML7700();
 
-#define DHTTYPE DHT22   // DHT 22  (AM2302)
-DHT dht(8, DHTTYPE); //// Initialize DHT sensor for normal 16mhz Arduino
+#define DHTTYPE DHT22  // DHT 22  (AM2302)
+DHT dht(8, DHTTYPE);   //// Initialize DHT sensor for normal 16mhz Arduino
 
 void setup() {
-  Serial.begin(9600); //A0
-  Serial1.begin(115200); // baud rate for lux sensor
+  Serial.begin(9600);     //A0
+  // Serial1.begin(9600);  // baud rate for lux sensor
 
   // set up light sensor
-  while (!Serial1) { 
-    delay(10); 
+  // while (!Serial1) {
+  while (!Serial) {
+    delay(10);
   }
   Serial.println("Adafruit VEML7700 Test");
   if (!veml.begin()) {
-   Serial.println("Sensor not found");
-   while (1);
+    Serial.println("Sensor not found");
+    while (1)
+      ;
   }
   Serial.println("Sensor found");
   veml.setLowThreshold(10000);
@@ -47,22 +49,31 @@ void setup() {
    case VEML7700_IT_400MS: Serial.println("400"); break;
    case VEML7700_IT_800MS: Serial.println("800"); break;
  }
-  */ 
+  */
 
-  // set up dht and soil sensor
-  dht.begin();
+  dht.begin();         // setup dht
+  pinMode(A0, INPUT);  // setup soil sensor
+
   delay(100);
 
-  Serial.println("Setup Success!"); 
+  Serial.println("Setup Success!");
 }
 
 void loop() {
   delay(1000);
-  Serial.print("Humidity: "); Serial.println(dht.readHumidity());
 
+  /* READ HUMIDITY SENSOR */
+  int humidity = dht.readHumidity();
+  Serial.print("Humidity: ");
+  Serial.println(humidity);
+
+
+  /* READ LUX SENSOR */
   // Serial.print("raw ALS: "); Serial.println(veml.readALS());
   // Serial.print("raw white: "); Serial.println(veml.readWhite());
-  Serial.print("lux: "); Serial.println(veml.readLux());
+  int lux = veml.readLux();
+  Serial.print("Lux: ");
+  Serial.println(lux);
 
   uint16_t irq = veml.interruptStatus();
   if (irq & VEML7700_INTERRUPT_LOW) {
@@ -72,4 +83,21 @@ void loop() {
     Serial.println("** High threshold");
   }
 
+  /* READ MOISTURE SENSOR */
+  int moisture = analogRead(A0);
+  Serial.print("Moisture: ");
+  Serial.println(moisture);
+
+  if (moisture >= 1000) {
+    Serial.println("Sensor is not in the Soil or DISCONNECTED");
+  }
+  if (moisture < 1000 && moisture >= 600) {
+    Serial.println("Soil is DRY");
+  }
+  if (moisture < 600 && moisture >= 370) {
+    Serial.println("Soil is HUMID");
+  }
+  if (moisture < 370) {
+    Serial.println("Sensor in WATER");
+  }
 }
