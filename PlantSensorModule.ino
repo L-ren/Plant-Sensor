@@ -16,7 +16,7 @@ void setup() {
   while (!Serial) {
     delay(10);
   }
-  Serial.println("Adafruit VEML7700 Test");
+  // Serial.println("Adafruit VEML7700 Test");
   if (!veml.begin()) {
     Serial.println("Sensor not found");
     while (1)
@@ -75,13 +75,13 @@ void loop() {
   Serial.print("Lux: ");
   Serial.println(lux);
 
-  uint16_t irq = veml.interruptStatus();
-  if (irq & VEML7700_INTERRUPT_LOW) {
-    Serial.println("** Low threshold");
-  }
-  if (irq & VEML7700_INTERRUPT_HIGH) {
-    Serial.println("** High threshold");
-  }
+  // uint16_t irq = veml.interruptStatus();
+  // if (irq & VEML7700_INTERRUPT_LOW) {
+  //   Serial.println("** Low threshold");
+  // }
+  // if (irq & VEML7700_INTERRUPT_HIGH) {
+  //   Serial.println("** High threshold");
+  // }
 
   /* READ MOISTURE SENSOR */
   int moisture = analogRead(A0);
