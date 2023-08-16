@@ -17,12 +17,31 @@ char server[] = "www.google.com";    // name address for Google (using DNS)
 // port 80 is default for HTTP
 WiFiClient client;
 
+Adafruit_VEML7700 veml = Adafruit_VEML7700();
+
+#define DHTTYPE DHT22  // DHT 22  (AM2302)
+DHT dht(8, DHTTYPE);   //// Initialize DHT sensor for normal 16mhz Arduino
+
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // A0
   while (!Serial) {
     ; // wait for serial port to connect, for native USB port only
   }
+
+    // Serial.println("Adafruit VEML7700 Test");
+  if (!veml.begin()) {
+    Serial.println("Sensor not found");
+    while (1)
+      ;
+  }
+  Serial.println("Sensor found");
+  veml.setLowThreshold(10000);
+  veml.setHighThreshold(20000);
+  veml.interruptEnable(true);
   
+  dht.begin();         // setup dht
+  pinMode(A0, INPUT);  // setup soil sensor
+
   // check for the WiFi module:
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
@@ -58,6 +77,46 @@ void setup() {
 }
 
 void loop() {
+  delay(1000);
+
+  /* READ HUMIDITY SENSOR */
+  int humidity = dht.readHumidity();
+  Serial.print("Humidity: ");
+  Serial.println(humidity);
+
+  /* READ LUX SENSOR */
+  // Serial.print("raw ALS: "); Serial.println(veml.readALS());
+  // Serial.print("raw white: "); Serial.println(veml.readWhite());
+  int lux = veml.readLux();
+  Serial.print("Lux: ");
+  Serial.println(lux);
+
+  // uint16_t irq = veml.interruptStatus();
+  // if (irq & VEML7700_INTERRUPT_LOW) {
+  //   Serial.println("** Low threshold");
+  // }
+  // if (irq & VEML7700_INTERRUPT_HIGH) {
+  //   Serial.println("** High threshold");
+  // }
+
+  /* READ MOISTURE SENSOR */
+  int moisture = analogRead(A0);
+  Serial.print("Moisture: ");
+  Serial.println(moisture);
+
+  if (moisture >= 1000) {
+    Serial.println("Sensor is not in the Soil or DISCONNECTED");
+  }
+  if (moisture < 1000 && moisture >= 600) {
+    Serial.println("Soil is DRY");
+  }
+  if (moisture < 600 && moisture >= 370) {
+    Serial.println("Soil is HUMID");
+  }
+  if (moisture < 370) {
+    Serial.println("Sensor in WATER");
+  }
+
   // if there are incoming bytes available
   // from the server, read them and print them:
   // while (client.available()) {
