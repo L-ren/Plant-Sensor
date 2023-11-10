@@ -30,11 +30,11 @@ void setup() {
 
     // Serial.println("Adafruit VEML7700 Test");
   if (!veml.begin()) {
-    Serial.println("Sensor not found");
+    Serial.println("Lux sensor not found");
     while (1)
       ;
   }
-  Serial.println("Sensor found");
+  Serial.println("Lux sensor found");
   veml.setLowThreshold(10000);
   veml.setHighThreshold(20000);
   veml.interruptEnable(true);
@@ -69,7 +69,7 @@ void setup() {
   if (client.connect(server, 80)) {
     Serial.println("connected to server");
     // Make a HTTP request:
-    client.println("GET /search?q=arduino HTTP/1.1");
+    client.println("POST /search?q=arduino HTTP/1.1");
     client.println("Host: www.google.com");
     client.println("Connection: close");
     client.println();
@@ -119,10 +119,10 @@ void loop() {
 
   // if there are incoming bytes available
   // from the server, read them and print them:
-  // while (client.available()) {
-  //   char c = client.read();
-  //   Serial.write(c);
-  // }
+  while (client.available()) {
+    char c = client.read();
+    Serial.write(c);
+  }
 
   if (client.available()) {
     Serial.println("connected to server");
